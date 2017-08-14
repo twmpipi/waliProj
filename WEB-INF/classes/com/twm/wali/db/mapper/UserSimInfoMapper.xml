@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.twm.wali.db.dao.UserSimInfoDao">
+
+	<!-- 資料表欄位與dto物件對應設定 -->
+	<resultMap id="userSimInfo" type="com.twm.wali.db.dto.UserSimInfo">
+		<id column="id" property="id" />
+		<result column="SID" property="sId"  />
+		<result column="WALI_ID" property="waliId" />
+		<result column="ICCID" property="iccId" />
+		<result column="MIFARE_ID" property="myfareId" />
+		<result column="JOINT_SIM" property="jointSim" />
+		<result column="IS_ENABLE" property="isEnable" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="UPDATE_DATE" property="updateDate" />
+	</resultMap>
+
+	<!-- #{column} 析为一个 JDBC 预编译语句（prepared statement）的参数标记符 -->
+	<!-- ${column} 仅仅为一个纯碎的 string 替换，在动态 SQL 解析阶段将会进行变量替换 -->
+
+	<!-- -->
+	<select id="findUserSimInfo" parameterType="userSimInfo" resultMap="userSimInfo">
+		SELECT
+			SID, WALI_ID, ICCID, MIFARE_ID, JOINT_SIM, IS_ENABLE, CREATE_DATE, UPDATE_DATE
+		FROM
+			usersiminfo
+		WHERE
+			sid = #{sId}
+	</select>
+
+	<!-- 新增 UserSimInfo 資料 -->
+	<insert id="addUserSimInfo" parameterType="com.twm.wali.db.dto.UserSimInfo">
+		INSERT INTO
+			usersiminfo
+		VALUES (
+			#{sId},
+			#{waliId},
+			#{iccId},
+			#{myfareId},
+			#{jointSim},
+			#{isEnable},
+			#{createDate},
+			#{updateDate}
+		);
+	</insert>
+</mapper>

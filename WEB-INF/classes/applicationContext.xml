@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/jdbc 
+                           http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx 
+                           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!--注入javaBean -->
+	<!-- <bean id="demoService" class="com.liuxe.service.impl.DemoServiceImpl" 
+		/> -->
+
+	<context:component-scan base-package="com.twm.wali" />
+
+	<!-- HSQL 初始化 -->
+	<jdbc:embedded-database id="hsqlDataSource"
+		type="HSQL">
+		<jdbc:script location="classpath:db/schema.sql" />
+		<jdbc:script location="classpath:db/insert-data.sql" />
+	</jdbc:embedded-database>
+
+	<!-- NamedParameterJdbcTemplate 連線 -->
+	<bean id="jdbcTemplate"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<!-- <constructor-arg ref="c3p0DataSource" /> -->	<!-- C3P0 連線池 -->
+		<!-- <constructor-arg ref="dbcpDataSource" /> -->	<!-- DBCP 連線池 -->
+		<constructor-arg ref="proxoolDataSource" /> <!-- proxool 連線池 -->
+	</bean>
+
+	<!-- DBCP 連線池 <bean id="dbcpDataSource" class="org.apache.commons.dbcp2.BasicDataSource" 
+		destroy-method="close"> <property name="driverClassName" value="org.hsqldb.jdbcDriver" 
+		/> <property name="url" value="jdbc:hsqldb:mem:hsqlDataSource" /> <property 
+		name="username" value="sa" /> <property name="password" value="" /> </bean> -->
+
+
+	<!-- C3P0 連線池 
+	<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource "
+		destroy-method="close">
+		<property name="driverClass" value="org.hsqldb.jdbcDriver" />
+		<property name="jdbcUrl" value="jdbc:hsqldb:mem:hsqlDataSource" />
+		<property name="user" value="sa" />
+		<property name="password" value="" />
+		<property name="acquireIncrement" value="1" />
+		<property name="initialPoolSize" value="5" />
+		<property name="maxPoolSize" value="20" />
+		<property name="minPoolSize" value="5" />
+		<property name="maxStatements" value="100" />
+		<property name="testConnectionOnCheckout" value="true" />
+	</bean>
+	-->
+	
+	<!-- proxool 連線池 -->
+	<bean id="proxoolDataSource" class="org.logicalcobwebs.proxool.ProxoolDataSource">
+		<property name="driver" value="org.hsqldb.jdbcDriver" />
+		<property name="driverUrl" value="jdbc:hsqldb:mem:hsqlDataSource" />
+		<property name="user" value="sa" />
+		<property name="password" value="" />
+		<property name="alias" value="Pool_dbname" />
+		<property name="maximumActiveTime" value="300000" />
+		<property name="prototypeCount" value="0" />
+		<property name="maximumConnectionCount" value="50" />
+		<property name="minimumConnectionCount" value="2" />
+		<property name="simultaneousBuildThrottle" value="50" />
+		<property name="houseKeepingTestSql" value="select CURRENT_DATE" />
+	</bean>
+
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="proxoolDataSource" />
+        <property name="transactionFactory">
+            <bean class="org.apache.ibatis.transaction.managed.ManagedTransactionFactory" />
+        </property>
+        <property name="configLocation" value="classpath:db/sql-map-config.xml"/>
+        <property name="mapperLocations" value="classpath:/com/twm/wali/db/mapper/*Mapper.xml" />
+    </bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.twm.wali.db.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="proxoolDataSource" />
+    </bean>
+	
+
+
+
+	<!-- 配置資料源 -->
+	<!-- <context:property-placeholder location="classpath:db.properties" /> -->
+	<!-- 資料庫連線池 -->
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close"> <property name="driverClassName" value="org.hsqldb.jdbcDriver" 
+		/> <property name="url" value="jdbc:hsqldb:mem:dataSource" /> <property name="username" 
+		value="sa" /> <property name="password" value="" /> <property name="maxActive" 
+		value="10" /> <property name="maxIdle" value="5" /> </bean> -->
+
+
+	<!-- JdbcTemplate --><!-- <bean id="jdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"> 
+		<constructor-arg ref="dataSource" /> </bean> -->
+
+	
+
+
+</beans>
+
